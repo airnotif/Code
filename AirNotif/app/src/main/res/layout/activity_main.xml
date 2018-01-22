@@ -1,0 +1,25 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0099cc"
+    tools:context="com.e4project.airnotif.MainActivity">
+
+    <ImageView
+        android:id="@+id/image_nuages"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/image_nuages"
+        android:scaleType="centerCrop"
+        app:srcCompat="@drawable/fond_nuages" />
+
+    <ImageView
+        android:id="@+id/image_avion"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/image_avion"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/logo_airnotif" />
+
+</FrameLayout>
