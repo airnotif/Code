@@ -27,7 +27,10 @@ public class Data
 	{
 		return this.date;
 	}
-
+	public void setDate(String pDate)
+	{
+		date=pDate;
+	}
 	public String getStation()
 	{
 		return this.station;

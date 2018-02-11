@@ -1,0 +1,22 @@
+#BlueJ class context
+comment0.params=date\ station\ program\ systemStatus\ processStatus\ nogo\ session
+comment0.target=Data(java.lang.String,\ java.lang.String,\ java.lang.String,\ java.lang.String,\ java.lang.String,\ java.lang.String,\ java.lang.String)
+comment1.params=
+comment1.target=java.lang.String\ getDate()
+comment2.params=pDate
+comment2.target=void\ setDate(java.lang.String)
+comment3.params=
+comment3.target=java.lang.String\ getStation()
+comment4.params=
+comment4.target=java.lang.String\ getProgram()
+comment5.params=
+comment5.target=java.lang.String\ getSystemStatus()
+comment6.params=
+comment6.target=java.lang.String\ getProcessStatus()
+comment7.params=
+comment7.target=java.lang.String\ getNogo()
+comment8.params=
+comment8.target=java.lang.String\ getSession()
+comment9.params=
+comment9.target=java.lang.String\ toString()
+numComments=10

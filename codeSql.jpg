@@ -1,0 +1,171 @@
+#------------------------------------------------------------
+#        Script MySQL.
+#------------------------------------------------------------
+
+
+#------------------------------------------------------------
+# Table: system_list
+#------------------------------------------------------------
+
+CREATE TABLE system_list(
+        id_system      Int NOT NULL ,
+        Enabled        Bool ,
+        Description    Varchar (50) ,
+        Localisation   Varchar (50) ,
+        COM_Type       Varchar (25) ,
+        IP             Varchar (50) ,
+        NetBios        Varchar (25) ,
+        Path           Varchar (50) ,
+        File           Varchar (50) ,
+        Life           Varchar (50) ,
+        Ping_wait      Bool ,
+        Business_Unit  Varchar (25) ,
+        Business_Group Varchar (25) ,
+        PRIMARY KEY (id_system )
+)ENGINE=InnoDB;
+
+
+#------------------------------------------------------------
+# Table: system_status_rt
+#------------------------------------------------------------
+
+CREATE TABLE system_status_rt(
+        id_status  Int NOT NULL ,
+        Parameter  Varchar (50) ,
+        Value      Varchar (50) ,
+        Event_date Date ,
+        id_system  Int ,
+        PRIMARY KEY (id_status )
+)ENGINE=InnoDB;
+
+
+#------------------------------------------------------------
+# Table: union_list
+#------------------------------------------------------------
+
+CREATE TABLE union_list(
+        id_union_list Int NOT NULL ,
+        Parameter     Varchar (25) ,
+        Type          Varchar (25) ,
+        Value         Varchar (25) ,
+        Value_Bis     Varchar (25) ,
+        PRIMARY KEY (id_union_list )
+)ENGINE=InnoDB;
+
+
+#------------------------------------------------------------
+# Table: union
+#------------------------------------------------------------
+
+CREATE TABLE id_union(
+        id_union    Int NOT NULL ,
+        Description Varchar (25) ,
+        PRIMARY KEY (id_union )
+)ENGINE=InnoDB;
+
+
+#------------------------------------------------------------
+# Table: skt_client_list
+#------------------------------------------------------------
+
+CREATE TABLE skt_client_list(
+        id_client         Int NOT NULL ,
+        SKT_Client_Number Int ,
+        PRIMARY KEY (id_client )
+)ENGINE=InnoDB;
+
+
+#------------------------------------------------------------
+# Table: subscript_list
+#------------------------------------------------------------
+
+CREATE TABLE subscript_list(
+        id_subscript_list Int NOT NULL ,
+        Ending_Date       Date ,
+        Single_Shot       Bool ,
+        Enabled           Bool ,
+        PRIMARY KEY (id_subscript_list )
+)ENGINE=InnoDB;
+
+
+#------------------------------------------------------------
+# Table: system_status_histo
+#------------------------------------------------------------
+
+CREATE TABLE system_status_histo(
+        id_system_status_histo Int NOT NULL ,
+        Parameter              Varchar (25) ,
+        Value                  Varchar (25) ,
+        Event_Date_On          Date ,
+        Event_Date_Off         Date ,
+        id_system              Int ,
+        PRIMARY KEY (id_system_status_histo )
+)ENGINE=InnoDB;
+
+
+#------------------------------------------------------------
+# Table: relation0
+#------------------------------------------------------------
+
+CREATE TABLE relation0(
+        id_union_list Int NOT NULL ,
+        id_union      Int NOT NULL ,
+        PRIMARY KEY (id_union_list ,id_union )
+)ENGINE=InnoDB;
+
+
+#------------------------------------------------------------
+# Table: relation1
+#------------------------------------------------------------
+
+CREATE TABLE relation1(
+        id_union_list Int NOT NULL ,
+        id_system     Int NOT NULL ,
+        PRIMARY KEY (id_union_list ,id_system )
+)ENGINE=InnoDB;
+
+
+#------------------------------------------------------------
+# Table: abonne
+#------------------------------------------------------------
+
+CREATE TABLE abonne(
+        id_client         Int NOT NULL ,
+        id_subscript_list Int NOT NULL ,
+        PRIMARY KEY (id_client ,id_subscript_list )
+)ENGINE=InnoDB;
+
+
+#------------------------------------------------------------
+# Table: relation3
+#------------------------------------------------------------
+
+CREATE TABLE relation3(
+        id_union          Int NOT NULL ,
+        id_subscript_list Int NOT NULL ,
+        PRIMARY KEY (id_union ,id_subscript_list )
+)ENGINE=InnoDB;
+
+
+#------------------------------------------------------------
+# Table: relation4
+#------------------------------------------------------------
+
+CREATE TABLE relation4(
+        id_subscript_list Int NOT NULL ,
+        id_system         Int NOT NULL ,
+        PRIMARY KEY (id_subscript_list ,id_system )
+)ENGINE=InnoDB;
+
+ALTER TABLE system_status_rt ADD CONSTRAINT FK_system_status_rt_id_system FOREIGN KEY (id_system) REFERENCES system_list(id_system);
+ALTER TABLE system_status_histo ADD CONSTRAINT FK_system_status_histo_id_system FOREIGN KEY (id_system) REFERENCES system_list(id_system);
+ALTER TABLE relation0 ADD CONSTRAINT FK_relation0_id_union_list FOREIGN KEY (id_union_list) REFERENCES union_list(id_union_list);
+ALTER TABLE relation0 ADD CONSTRAINT FK_relation0_id_union FOREIGN KEY (id_union) REFERENCES id_union(id_union);
+ALTER TABLE relation1 ADD CONSTRAINT FK_relation1_id_union_list FOREIGN KEY (id_union_list) REFERENCES union_list(id_union_list);
+ALTER TABLE relation1 ADD CONSTRAINT FK_relation1_id_system FOREIGN KEY (id_system) REFERENCES system_list(id_system);
+ALTER TABLE abonne ADD CONSTRAINT FK_abonne_id_client FOREIGN KEY (id_client) REFERENCES skt_client_list(id_client);
+ALTER TABLE abonne ADD CONSTRAINT FK_abonne_id_subscript_list FOREIGN KEY (id_subscript_list) REFERENCES subscript_list(id_subscript_list);
+ALTER TABLE relation3 ADD CONSTRAINT FK_relation3_id_union FOREIGN KEY (id_union) REFERENCES id_union(id_union);
+ALTER TABLE relation3 ADD CONSTRAINT FK_relation3_id_subscript_list FOREIGN KEY (id_subscript_list) REFERENCES subscript_list(id_subscript_list);
+ALTER TABLE relation4 ADD CONSTRAINT FK_relation4_id_subscript_list FOREIGN KEY (id_subscript_list) REFERENCES subscript_list(id_subscript_list);
+ALTER TABLE relation4 ADD CONSTRAINT FK_relation4_id_system FOREIGN KEY (id_system) REFERENCES system_list(id_system);

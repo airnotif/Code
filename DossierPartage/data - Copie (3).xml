@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+	<ref>
+		<date>01/08/2014 13:48:43</date>
+		<station>MI_#2</station>
+		<program>main.java</program>
+	</ref>
+	<system>
+		<status>MODE AUTO</status>
+	</system>
+	<process>
+		<status>DISPONIBLE</status>
+		<nogo>0</nogo>
+	</process>
+	<function>
+		<session>DEV</session>
+	</function>
+</test>	

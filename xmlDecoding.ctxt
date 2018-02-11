@@ -1,0 +1,8 @@
+#BlueJ class context
+comment0.params=fichier
+comment0.target=xmlDecoding(java.io.File)
+comment1.params=
+comment1.target=Data\ getData()
+comment2.params=args
+comment2.target=void\ main(java.lang.String[])
+numComments=3
