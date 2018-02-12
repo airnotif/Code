@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <test>
 	<ref>
-		<date>01/08/2014 13:48:43</date>
+		<date>01/08/2014 13:48:44</date>
 		<station>MI_#2</station>
 		<program>main.java</program>
 	</ref>
@@ -9,7 +9,7 @@
 		<status>MODE AUTO</status>
 	</system>
 	<process>
-		<status>DISPONIBLE</status>
+		<status>INDISPONIBLE</status>
 		<nogo>0</nogo>
 	</process>
 	<function>

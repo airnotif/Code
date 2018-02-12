@@ -49,7 +49,7 @@ public class Serveur extends JFrame implements ActionListener
 
             try
             {
-                Socket s = new Socket("10.117.93.212",7801);
+                Socket s = new Socket("192.168.219.231",7801);
                 PrintWriter pw = new PrintWriter(s.getOutputStream());
                 pw.write("Coucou");
                 pw.flush();
@@ -73,8 +73,11 @@ public class Serveur extends JFrame implements ActionListener
         Connection con;
         boolean copieMachine;
         String query;
+        String query3;
         Statement st;
+        Statement st3;
         ResultSet rs;
+        ResultSet rs3;
         PreparedStatement pstmt;
         String sqlUpdate = "UPDATE machine "
             + "SET date_machine = ? "
@@ -102,6 +105,7 @@ public class Serveur extends JFrame implements ActionListener
                 DataToCompare.add(xml.getData());
             }
             query = "SELECT * FROM machine";
+            query3 = "SELECT * FROM utilisateur";
             try
             {
                 for (int k=0;k<DataToCompare.size();k++)
@@ -110,6 +114,8 @@ public class Serveur extends JFrame implements ActionListener
                     st = con.createStatement();
                     pstmt = con.prepareStatement(sqlUpdate);
                     rs = st.executeQuery(query);
+                    st3 = con.createStatement();
+                    rs3 = st3.executeQuery(query3);                    
                     while (rs.next())
                     {
                         if(rs.getString("id_machine").equals(DataToCompare.get(k).getStation()))
@@ -118,6 +124,15 @@ public class Serveur extends JFrame implements ActionListener
                             System.out.println(k);
                             if(isMoreRecent(DataToCompare.get(k).getDate(),rs.getString("date_machine"))==true)
                             {
+                                if(DataToCompare.get(k).getProcessStatus().equals(rs.getString("status_process_machine"))== false)
+                                {                                    
+                                    System.out.println(DataToCompare.get(k).getProcessStatus());
+                                    while(rs3.next())
+                                    {
+                                        System.out.println("rechercher user");
+                                    }
+
+                                }
                                 pstmt.setString(1, DataToCompare.get(k).getDate());
                                 pstmt.setString(2, DataToCompare.get(k).getProgram());
                                 pstmt.setString(3, DataToCompare.get(k).getSystemStatus());
@@ -126,6 +141,7 @@ public class Serveur extends JFrame implements ActionListener
                                 pstmt.setString(6, DataToCompare.get(k).getSession());
                                 pstmt.setString(7, DataToCompare.get(k).getStation());
                                 pstmt.executeUpdate(); 
+
                             }
 
                             copieMachine=true;
@@ -137,7 +153,9 @@ public class Serveur extends JFrame implements ActionListener
                         String query2 = "INSERT INTO machine (id_machine,date_machine,programme_machine,status_system_machine,status_process_machine,nogo_machine,session_machine) VALUES('"+DataToCompare.get(k).getStation()+"','"+DataToCompare.get(k).getDate()+"','"+DataToCompare.get(k).getProgram()+"','"+DataToCompare.get(k).getSystemStatus()+"','"+DataToCompare.get(k).getProcessStatus()+"','"+DataToCompare.get(k).getNogo()+"','"+DataToCompare.get(k).getSession()+"')";
                         int rs2 = st.executeUpdate(query2);
                     }
+
                     st.close();
+                    st3.close();
                     pstmt.close();
                 }
             }
@@ -160,9 +178,14 @@ public class Serveur extends JFrame implements ActionListener
             return true;
         if(Integer.parseInt(Character.toString(p1.charAt(14))+Character.toString(p1.charAt(15)))>Integer.parseInt(Character.toString(p2.charAt(14))+Character.toString(p2.charAt(15))))
             return true;
-        if(Integer.parseInt(Character.toString(p1.charAt(17))+Character.toString(p1.charAt(18)))>Integer.parseInt(Character.toString(p2.charAt(17))+Character.toString(p2.charAt(18))))
+        if(Integer.parseInt(Character.toString(p1.charAt(17))+Character.toString(p1.charAt(18)))>=Integer.parseInt(Character.toString(p2.charAt(17))+Character.toString(p2.charAt(18))))
             return true;
         return false;
+    }
+
+    public void abonnement(String ip, String machine)
+    {
+
     }
 }
 
