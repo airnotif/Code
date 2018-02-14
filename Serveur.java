@@ -27,6 +27,7 @@ public class Serveur extends JFrame implements ActionListener
     private JButton sendRequest;
     private JLabel label;
     private List<Data> DataToCompare = new ArrayList<Data>();
+    private Connection con;
     public Serveur()
     {
         super("Serveur");       
@@ -37,7 +38,17 @@ public class Serveur extends JFrame implements ActionListener
         sendRequest = new JButton("Send");
         sendRequest.addActionListener(this);
         add(sendRequest);
-        setVisible(true);
+        setVisible(true);        
+        try 
+        {
+            Class.forName("com.mysql.jdbc.Driver");  
+            con=DriverManager.getConnection("jdbc:mysql://localhost:3306/system?autoReconnect=true&useSSL=false","root","folio109");
+            System.out.println("Database connected!");
+        }
+        catch (Exception e)
+        {
+            throw new IllegalStateException("Cannot connect the database!", e);
+        }
         this.main();
     }
 
@@ -70,7 +81,7 @@ public class Serveur extends JFrame implements ActionListener
     public void main()
     {
         final File dossier = new File("DossierPartage");
-        Connection con;
+
         boolean copieMachine;
         String query;
         String query3;
@@ -88,16 +99,6 @@ public class Serveur extends JFrame implements ActionListener
             + ",session_machine = ? "
             + "WHERE id_machine = ?";
 
-        try 
-        {
-            Class.forName("com.mysql.jdbc.Driver");  
-            con=DriverManager.getConnection("jdbc:mysql://localhost:3306/system?autoReconnect=true&useSSL=false","root","folio109");
-            System.out.println("Database connected!");
-        }
-        catch (Exception e)
-        {
-            throw new IllegalStateException("Cannot connect the database!", e);
-        }
         //while(true)
         {
             for (final File fileEntry : dossier.listFiles()) {
@@ -120,8 +121,6 @@ public class Serveur extends JFrame implements ActionListener
                     {
                         if(rs.getString("id_machine").equals(DataToCompare.get(k).getStation()))
                         {
-                            System.out.println("machine trouvee");
-                            System.out.println(k);
                             if(isMoreRecent(DataToCompare.get(k).getDate(),rs.getString("date_machine"))==true)
                             {
                                 if(DataToCompare.get(k).getProcessStatus().equals(rs.getString("status_process_machine"))== false)
@@ -183,9 +182,125 @@ public class Serveur extends JFrame implements ActionListener
         return false;
     }
 
+    public void connexion(String identifiant, String motDePasse,String ip)
+    {
+        try{
+            boolean trouvee=false;
+            Statement st4 = con.createStatement();
+            ResultSet rs4 = st4.executeQuery("SELECT * FROM utilisateur");
+            while (rs4.next())
+            {
+                if(rs4.getString("identifiant_utilisateur").equals(identifiant))
+                {
+                    trouvee=true;
+                    if(rs4.getString("mot_de_passe_utilisateur").equals(motDePasse))
+                    {
+                        System.out.println("connexion ok");
+                        if(rs4.getString("adresseIp_utilisateur").equals(ip))
+                        {                            
+                        }
+                        else
+                        {
+                        }
+                    }
+                    else
+                    {
+                        System.out.println("mauvais mdp");  
+                    }
+                    break;
+                }
+            }
+            if(trouvee==false)
+            {
+                System.out.println("identifiant introuvable");  
+            }
+
+        }
+        catch (Exception e)
+        {
+            throw new IllegalStateException("bug query", e);
+        }
+    }
+
     public void abonnement(String ip, String machine)
     {
+        try{
+            boolean copieMachine=false;
+            Statement st4 = con.createStatement();
+            ResultSet rs6 = st4.executeQuery("SELECT COUNT(*) FROM historique_abonnement");
+            rs6.next();
+            int taille=rs6.getInt(1);
+            ResultSet rs4 = st4.executeQuery("SELECT * FROM utilisateur");
 
+            while (rs4.next())
+            {
+                if(rs4.getString("adresseIp_utilisateur").equals(ip))
+                {
+                    int utilisateur=rs4.getInt("id_utilisateur");
+                    ResultSet rs5 = st4.executeQuery("SELECT * FROM machine_utilisateur");
+                    while(rs5.next())
+                    {
+                        if(utilisateur==(rs5.getInt("id_utilisateur")) && rs5.getString("id_machine").equals(machine))
+                        {                       
+                            copieMachine=true;
+                            break;
+                        }
+                    }
+                    if (copieMachine==false)
+                    {
+                        st4.executeUpdate("INSERT INTO machine_utilisateur (id_abonnement,id_utilisateur,id_machine) VALUES('"+taille+"','"+utilisateur+"','"+machine+"')");
+                        st4.executeUpdate("INSERT INTO historique_abonnement (id_abonnement,id_utilisateur,id_machine,is_abonnement) VALUES('"+taille+"','"+utilisateur+"','"+machine+"','"+1+"')");
+                    }
+
+                    break;
+                }
+            } 
+            st4.close();
+        }
+        catch (Exception e)
+        {
+            throw new IllegalStateException("bug query", e);
+        }
+    }
+
+    public void déabonnement(String ip, String machine)
+    {
+        try{
+            Statement st4 = con.createStatement();
+            ResultSet rs4 = st4.executeQuery("SELECT * FROM utilisateur");
+
+            while (rs4.next())
+            {
+                if(rs4.getString("adresseIp_utilisateur").equals(ip))
+                {
+                    int utilisateur=rs4.getInt("id_utilisateur");
+                    ResultSet rs5 = st4.executeQuery("SELECT * FROM machine_utilisateur");
+                    System.out.println("Ok!");
+                    while(rs5.next())
+                    {
+
+                        if(utilisateur==(rs5.getInt("id_utilisateur")) && rs5.getString("id_machine").equals(machine))
+                        {    
+                            ResultSet rs6 = st4.executeQuery("SELECT COUNT(*) FROM historique_abonnement");
+                            rs6.next();
+                            int taille=rs6.getInt(1);
+                            st4.executeUpdate("INSERT INTO historique_abonnement (id_abonnement,id_utilisateur,id_machine,is_abonnement) VALUES('"+taille+"','"+utilisateur+"','"+machine+"','"+0+"')");
+                            PreparedStatement prst4 = con.prepareStatement("DELETE FROM machine_utilisateur WHERE id_utilisateur = ? AND id_machine = ? ");
+                            prst4.setInt(1,utilisateur);
+                            prst4.setString(2,machine);
+                            prst4.executeUpdate(); 
+                            break;
+                        }
+                    }
+                    break;
+                }
+            } 
+            st4.close();
+        }
+        catch (Exception e)
+        {
+            throw new IllegalStateException("bug query", e);
+        }
     }
 }
 
