@@ -21,6 +21,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.sql.*;
 import java.util.*;
+import java.net.ServerSocket;
+import java.io.BufferedInputStream;
+import java.net.*;
+import java.io.*;
 public class Serveur extends JFrame implements ActionListener
 {
     private JPanel panel;
@@ -98,7 +102,6 @@ public class Serveur extends JFrame implements ActionListener
             + ",nogo_machine = ? "
             + ",session_machine = ? "
             + "WHERE id_machine = ?";
-
         //while(true)
         {
             for (final File fileEntry : dossier.listFiles()) {
@@ -182,12 +185,15 @@ public class Serveur extends JFrame implements ActionListener
         return false;
     }
 
-    public void connexion(String identifiant, String motDePasse,String ip)
+    public boolean connexion(String identifiant, String motDePasse,String ip)
     {
         try{
             boolean trouvee=false;
             Statement st4 = con.createStatement();
             ResultSet rs4 = st4.executeQuery("SELECT * FROM utilisateur");
+            String sqlUpdate = "UPDATE utilisateur "
+                + "SET adresseIp_utilisateur = ? "
+                + "WHERE identifiant_utilisateur = ?";
             while (rs4.next())
             {
                 if(rs4.getString("identifiant_utilisateur").equals(identifiant))
@@ -197,11 +203,17 @@ public class Serveur extends JFrame implements ActionListener
                     {
                         System.out.println("connexion ok");
                         if(rs4.getString("adresseIp_utilisateur").equals(ip))
-                        {                            
+                        { 
+
                         }
                         else
                         {
+                            PreparedStatement pstmt = con.prepareStatement(sqlUpdate);
+                            pstmt.setString(1,ip);
+                            pstmt.setString(2,identifiant);
+                            pstmt.executeUpdate(); 
                         }
+                        return true;
                     }
                     else
                     {
@@ -220,9 +232,34 @@ public class Serveur extends JFrame implements ActionListener
         {
             throw new IllegalStateException("bug query", e);
         }
+        return false;
+
     }
 
-    public void abonnement(String ip, String machine)
+    public boolean listeMachine(String identifiant)
+    {
+        try{
+            boolean trouvee=false;
+            Statement st4 = con.createStatement();
+            ResultSet rs4 = st4.executeQuery("SELECT * FROM machine_utilisateur");
+            while (rs4.next())
+            {
+                if(rs4.getString("identifiant_utilisateur").equals(identifiant))
+                {
+
+                    return true;
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            throw new IllegalStateException("bug query", e);
+        }
+        return false;
+    }
+
+    public boolean abonnement(String ip, String machine)
     {
         try{
             boolean copieMachine=false;
@@ -236,11 +273,11 @@ public class Serveur extends JFrame implements ActionListener
             {
                 if(rs4.getString("adresseIp_utilisateur").equals(ip))
                 {
-                    int utilisateur=rs4.getInt("id_utilisateur");
+                    String utilisateur=rs4.getString("identifiant_utilisateur");
                     ResultSet rs5 = st4.executeQuery("SELECT * FROM machine_utilisateur");
                     while(rs5.next())
                     {
-                        if(utilisateur==(rs5.getInt("id_utilisateur")) && rs5.getString("id_machine").equals(machine))
+                        if(utilisateur.equals(rs5.getString("identifiant_utilisateur")) && rs5.getString("id_machine").equals(machine))
                         {                       
                             copieMachine=true;
                             break;
@@ -248,11 +285,11 @@ public class Serveur extends JFrame implements ActionListener
                     }
                     if (copieMachine==false)
                     {
-                        st4.executeUpdate("INSERT INTO machine_utilisateur (id_abonnement,id_utilisateur,id_machine) VALUES('"+taille+"','"+utilisateur+"','"+machine+"')");
-                        st4.executeUpdate("INSERT INTO historique_abonnement (id_abonnement,id_utilisateur,id_machine,is_abonnement) VALUES('"+taille+"','"+utilisateur+"','"+machine+"','"+1+"')");
+                        st4.executeUpdate("INSERT INTO machine_utilisateur (id_abonnement,identifiant_utilisateur,id_machine) VALUES('"+taille+"','"+utilisateur+"','"+machine+"')");
+                        st4.executeUpdate("INSERT INTO historique_abonnement (id_abonnement,identifiant_utilisateur,id_machine,is_abonnement) VALUES('"+taille+"','"+utilisateur+"','"+machine+"','"+1+"')");
                     }
 
-                    break;
+                    return true;
                 }
             } 
             st4.close();
@@ -261,9 +298,10 @@ public class Serveur extends JFrame implements ActionListener
         {
             throw new IllegalStateException("bug query", e);
         }
+        return false;
     }
 
-    public void déabonnement(String ip, String machine)
+    public boolean desabonnement(String ip, String machine)
     {
         try{
             Statement st4 = con.createStatement();
@@ -273,26 +311,25 @@ public class Serveur extends JFrame implements ActionListener
             {
                 if(rs4.getString("adresseIp_utilisateur").equals(ip))
                 {
-                    int utilisateur=rs4.getInt("id_utilisateur");
+                    String utilisateur=rs4.getString("identifiant_utilisateur");
                     ResultSet rs5 = st4.executeQuery("SELECT * FROM machine_utilisateur");
-                    System.out.println("Ok!");
                     while(rs5.next())
                     {
 
-                        if(utilisateur==(rs5.getInt("id_utilisateur")) && rs5.getString("id_machine").equals(machine))
+                        if(utilisateur.equals(rs5.getString("identifiant_utilisateur")) && rs5.getString("id_machine").equals(machine))
                         {    
                             ResultSet rs6 = st4.executeQuery("SELECT COUNT(*) FROM historique_abonnement");
                             rs6.next();
                             int taille=rs6.getInt(1);
-                            st4.executeUpdate("INSERT INTO historique_abonnement (id_abonnement,id_utilisateur,id_machine,is_abonnement) VALUES('"+taille+"','"+utilisateur+"','"+machine+"','"+0+"')");
-                            PreparedStatement prst4 = con.prepareStatement("DELETE FROM machine_utilisateur WHERE id_utilisateur = ? AND id_machine = ? ");
-                            prst4.setInt(1,utilisateur);
+                            st4.executeUpdate("INSERT INTO historique_abonnement (id_abonnement,identifiant_utilisateur,id_machine,is_abonnement) VALUES('"+taille+"','"+utilisateur+"','"+machine+"','"+0+"')");
+                            PreparedStatement prst4 = con.prepareStatement("DELETE FROM machine_utilisateur WHERE identifiant_utilisateur = ? AND id_machine = ? ");
+                            prst4.setString(1,utilisateur);
                             prst4.setString(2,machine);
                             prst4.executeUpdate(); 
                             break;
                         }
                     }
-                    break;
+                    return true;
                 }
             } 
             st4.close();
@@ -301,6 +338,83 @@ public class Serveur extends JFrame implements ActionListener
         {
             throw new IllegalStateException("bug query", e);
         }
+        return false;
+    }
+
+    public void NewConnection(){
+        try{
+            int port = 5555;
+            ServerSocket socketServeur = new ServerSocket(port);
+            System.out.println("Server launch");
+            while (true) {
+                Socket socketClient= socketServeur.accept();
+                //System.out.println("Connexion avec : "+socketClient.getInetAddress());
+                CommunicationThread CT = new CommunicationThread(socketClient);
+            }
+
+        }
+        catch (Exception e){
+            System.out.println("Erreur newconnection()");
+        }
+    }
+
+    public class CommunicationThread extends Thread {
+        Socket socketClient;
+        public CommunicationThread(Socket socketClient){
+            this.socketClient=socketClient;
+            this.start();
+        }
+
+        public void run(){
+            //System.out.println("run "+this.socketClient.getInetAddress());
+            traitements();
+        }
+
+        public void traitements(){
+            ArrayList<String> message = new ArrayList<String>();
+
+            //System.out.println("traitements "+this.socketClient.getInetAddress());
+            try{
+                BufferedReader in=new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
+                PrintStream out=new PrintStream(socketClient.getOutputStream());
+                String line;
+                while( (line = in.readLine()) != null)
+                {
+                    message.add(line);
+                }
+                
+                if (message.get(0).equals("0"))
+                {
+                    String Ip="'"+this.socketClient.getInetAddress()+"'";
+                    String Id=message.get(1);
+                    String Mdp=message.get(2);
+                    out.println(connexion(Id,Mdp,Ip));
+                    //System.out.println(message+" connecté IP: "+this.socketClient.getInetAddress());
+                    //out.println("Bonjour "+message+" Envoi DATA");
+                }
+
+                if (message.get(0).equals("1"))
+                {
+                    String Id=message.get(1);
+                    out.println(listeMachine(Id));
+                }
+                if (message.get(0).equals("2"))
+                {
+                    String Id=message.get(1);
+                    String Machine=message.get(3);
+                    out.println(abonnement(Id,Machine));
+                }
+                if (message.get(0).equals("3"))
+                {
+                    String Id=message.get(1);
+                    String Machine=message.get(3);
+                    out.println(desabonnement(Id,Machine));
+                }
+                //socketClient.close();
+            } catch (Exception e){
+                System.out.println("Erreur traitements()");
+            }
+        }  
     }
 }
 
