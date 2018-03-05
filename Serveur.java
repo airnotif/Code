@@ -85,7 +85,7 @@ public class Serveur extends JFrame implements ActionListener
     public void main()
     {
         final File dossier = new File("DossierPartage");
-
+        //NewConnection();
         boolean copieMachine;
         String query;
         String query3;
@@ -185,7 +185,7 @@ public class Serveur extends JFrame implements ActionListener
         return false;
     }
 
-    public boolean connexion(String identifiant, String motDePasse,String ip)
+    public boolean connexion(String identifiant,String ip)
     {
         try{
             boolean trouvee=false;
@@ -199,27 +199,19 @@ public class Serveur extends JFrame implements ActionListener
                 if(rs4.getString("identifiant_utilisateur").equals(identifiant))
                 {
                     trouvee=true;
-                    if(rs4.getString("mot_de_passe_utilisateur").equals(motDePasse))
-                    {
-                        System.out.println("connexion ok");
-                        if(rs4.getString("adresseIp_utilisateur").equals(ip))
-                        { 
+                    System.out.println("connexion ok");
+                    if(rs4.getString("adresseIp_utilisateur").equals(ip))
+                    { 
 
-                        }
-                        else
-                        {
-                            PreparedStatement pstmt = con.prepareStatement(sqlUpdate);
-                            pstmt.setString(1,ip);
-                            pstmt.setString(2,identifiant);
-                            pstmt.executeUpdate(); 
-                        }
-                        return true;
                     }
                     else
                     {
-                        System.out.println("mauvais mdp");  
+                        PreparedStatement pstmt = con.prepareStatement(sqlUpdate);
+                        pstmt.setString(1,ip);
+                        pstmt.setString(2,identifiant);
+                        pstmt.executeUpdate(); 
                     }
-                    break;
+                    return true;
                 }
             }
             if(trouvee==false)
@@ -236,9 +228,45 @@ public class Serveur extends JFrame implements ActionListener
 
     }
 
-    public boolean listeMachine(String identifiant)
+    public  ArrayList<ArrayList<String>> listeMachine()
     {
         try{
+            ArrayList< ArrayList<String>> liste_machine=new ArrayList< ArrayList<String>>();
+            ArrayList<String> liste_donnee=new ArrayList<String>();
+            boolean trouvee=false;
+            Statement st4 = con.createStatement();
+            ResultSet rs4 = st4.executeQuery("SELECT * FROM machine");
+            liste_donnee.add(Boolean.toString(true));
+            liste_machine.add(liste_donnee);
+            while (rs4.next())
+            {
+
+                liste_donnee=new ArrayList<String>();
+                liste_donnee.add(rs4.getString("id_machine"));
+                liste_donnee.add(rs4.getString("status_system_machine"));
+                liste_donnee.add(rs4.getString("status_process_machine"));
+                liste_donnee.add(rs4.getString("nogo_machine"));
+                liste_donnee.add(rs4.getString("session_machine"));
+                liste_machine.add(liste_donnee);
+                return(liste_machine);
+            }
+            liste_donnee.add(Boolean.toString(false));
+            liste_machine.add(liste_donnee);
+            return liste_machine;
+        }
+        catch (Exception e)
+        {
+            throw new IllegalStateException("bug query", e);
+        }
+
+    }
+
+    public  ArrayList<ArrayList<String>> listeMachineUtilisateur(String identifiant)
+    {
+        try{
+            ArrayList<String> liste_machine_utilisateur=new ArrayList<String>();
+            ArrayList<String> liste_donnee=new ArrayList<String>();
+            ArrayList<ArrayList<String>> liste_machine=new ArrayList<ArrayList<String>>();
             boolean trouvee=false;
             Statement st4 = con.createStatement();
             ResultSet rs4 = st4.executeQuery("SELECT * FROM machine_utilisateur");
@@ -246,20 +274,46 @@ public class Serveur extends JFrame implements ActionListener
             {
                 if(rs4.getString("identifiant_utilisateur").equals(identifiant))
                 {
-
-                    return true;
+                    liste_machine_utilisateur.add(rs4.getString("id_machine"));
                 }
             }
+            System.out.println(liste_machine_utilisateur);
+            for (String machine : liste_machine_utilisateur) { 		      
+                rs4 = st4.executeQuery("SELECT * FROM machine");	
+                while (rs4.next())
+                {
+                    if(trouvee==false)
+                    {
+                        trouvee=true;
+                        liste_donnee.add(Boolean.toString(true));
+                        liste_machine.add(liste_donnee);
+                    }
+                    if(rs4.getString("id_machine").equals(machine))
+                    {
+                        liste_donnee=new ArrayList<String>();
+                        liste_donnee.add(rs4.getString("id_machine"));
+                        liste_donnee.add(rs4.getString("status_system_machine"));
+                        liste_donnee.add(rs4.getString("status_process_machine"));
+                        liste_donnee.add(rs4.getString("nogo_machine"));
+                        liste_donnee.add(rs4.getString("session_machine"));
+                        liste_machine.add(liste_donnee);
 
+                    }
+                }
+                return(liste_machine);
+            }
+            liste_donnee.add(Boolean.toString(false));
+            liste_machine.add(liste_donnee);
+            return liste_machine;
         }
         catch (Exception e)
         {
             throw new IllegalStateException("bug query", e);
         }
-        return false;
+
     }
 
-    public boolean abonnement(String ip, String machine)
+    public boolean abonnement(String identifiant, String machine)
     {
         try{
             boolean copieMachine=false;
@@ -271,7 +325,7 @@ public class Serveur extends JFrame implements ActionListener
 
             while (rs4.next())
             {
-                if(rs4.getString("adresseIp_utilisateur").equals(ip))
+                if(rs4.getString("identifiant_utilisateur").equals(identifiant))
                 {
                     String utilisateur=rs4.getString("identifiant_utilisateur");
                     ResultSet rs5 = st4.executeQuery("SELECT * FROM machine_utilisateur");
@@ -301,7 +355,7 @@ public class Serveur extends JFrame implements ActionListener
         return false;
     }
 
-    public boolean desabonnement(String ip, String machine)
+    public boolean desabonnement(String identifiant, String machine)
     {
         try{
             Statement st4 = con.createStatement();
@@ -309,7 +363,7 @@ public class Serveur extends JFrame implements ActionListener
 
             while (rs4.next())
             {
-                if(rs4.getString("adresseIp_utilisateur").equals(ip))
+                if(rs4.getString("adresseIp_utilisateur").equals(identifiant))
                 {
                     String utilisateur=rs4.getString("identifiant_utilisateur");
                     ResultSet rs5 = st4.executeQuery("SELECT * FROM machine_utilisateur");
@@ -346,7 +400,8 @@ public class Serveur extends JFrame implements ActionListener
             int port = 5555;
             ServerSocket socketServeur = new ServerSocket(port);
             System.out.println("Server launch");
-            while (true) {
+            //while (true) 
+            {
                 Socket socketClient= socketServeur.accept();
                 //System.out.println("Connexion avec : "+socketClient.getInetAddress());
                 CommunicationThread CT = new CommunicationThread(socketClient);
@@ -363,6 +418,7 @@ public class Serveur extends JFrame implements ActionListener
         public CommunicationThread(Socket socketClient){
             this.socketClient=socketClient;
             this.start();
+            System.out.println("yo");
         }
 
         public void run(){
@@ -371,46 +427,66 @@ public class Serveur extends JFrame implements ActionListener
         }
 
         public void traitements(){
-            ArrayList<String> message = new ArrayList<String>();
-
-            //System.out.println("traitements "+this.socketClient.getInetAddress());
+            ArrayList<String> message=new  ArrayList<String>();
+            ArrayList<String> out=new  ArrayList<String>();
+            ArrayList< ArrayList<String>> machineOut;
             try{
-                BufferedReader in=new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
-                PrintStream out=new PrintStream(socketClient.getOutputStream());
-                String line;
-                while( (line = in.readLine()) != null)
+                //BufferedReader in=new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
+                //PrintStream out=new PrintStream(socketClient.getOutputStream());
+                ObjectInputStream objectInput = new ObjectInputStream(socketClient.getInputStream());
+                ObjectOutputStream objectOutput = new ObjectOutputStream(socketClient.getOutputStream());
+                System.out.println("traitements "+this.socketClient.getInetAddress());
+                while( (objectInput) != null)
                 {
-                    message.add(line);
+                    try
+                    {             
+                        message =(ArrayList<String>) objectInput.readObject();
+                        System.out.println(message);
+                        break;
+                    }
+                    catch (Exception e){
+                        System.out.println("Erreur traitements()");
+                    }
                 }
-                
                 if (message.get(0).equals("0"))
                 {
+                    System.out.println("ok");
                     String Ip="'"+this.socketClient.getInetAddress()+"'";
                     String Id=message.get(1);
-                    String Mdp=message.get(2);
-                    out.println(connexion(Id,Mdp,Ip));
+                    out.add(Boolean.toString(connexion(Id,Ip)));
+                    objectOutput.writeObject(out);
                     //System.out.println(message+" connecté IP: "+this.socketClient.getInetAddress());
                     //out.println("Bonjour "+message+" Envoi DATA");
                 }
 
                 if (message.get(0).equals("1"))
                 {
-                    String Id=message.get(1);
-                    out.println(listeMachine(Id));
+                    //String Id=message.get(1);
+                    machineOut=(listeMachine());
+                    objectOutput.writeObject(out);
                 }
                 if (message.get(0).equals("2"))
                 {
                     String Id=message.get(1);
-                    String Machine=message.get(3);
-                    out.println(abonnement(Id,Machine));
+                    machineOut=(listeMachineUtilisateur(Id));
+                    objectOutput.writeObject(out);
                 }
                 if (message.get(0).equals("3"))
                 {
                     String Id=message.get(1);
                     String Machine=message.get(3);
-                    out.println(desabonnement(Id,Machine));
+                    out.add(Boolean.toString(abonnement(Id,Machine)));
+                    objectOutput.writeObject(out);
                 }
-                //socketClient.close();
+                if (message.get(0).equals("4"))
+                {
+                    String Id=message.get(1);
+                    String Machine=message.get(3);
+                    out.add(Boolean.toString(desabonnement(Id,Machine)));
+                    objectOutput.writeObject(out);
+                }
+                System.out.println("Ferme");
+                socketClient.close();
             } catch (Exception e){
                 System.out.println("Erreur traitements()");
             }
