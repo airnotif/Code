@@ -85,7 +85,7 @@ public class Serveur extends JFrame implements ActionListener
     public void main()
     {
         final File dossier = new File("DossierPartage");
-        //NewConnection();
+        NewConnection();
         boolean copieMachine;
         String query;
         String query3;
@@ -102,7 +102,7 @@ public class Serveur extends JFrame implements ActionListener
             + ",nogo_machine = ? "
             + ",session_machine = ? "
             + "WHERE id_machine = ?";
-        //while(true)
+        while(true)
         {
             for (final File fileEntry : dossier.listFiles()) {
                 xmlDecoding xml = new xmlDecoding(fileEntry);                
