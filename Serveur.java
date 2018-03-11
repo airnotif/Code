@@ -248,7 +248,7 @@ public class Serveur extends JFrame implements ActionListener
                 liste_donnee.add(rs4.getString("nogo_machine"));
                 liste_donnee.add(rs4.getString("session_machine"));
                 liste_machine.add(liste_donnee);
-                return(liste_machine);
+                
             }
             liste_donnee.add(Boolean.toString(false));
             liste_machine.add(liste_donnee);
@@ -400,7 +400,7 @@ public class Serveur extends JFrame implements ActionListener
             int port = 5555;
             ServerSocket socketServeur = new ServerSocket(port);
             System.out.println("Server launch");
-            //while (true) 
+            while (true) 
             {
                 Socket socketClient= socketServeur.accept();
                 //System.out.println("Connexion avec : "+socketClient.getInetAddress());
@@ -463,13 +463,13 @@ public class Serveur extends JFrame implements ActionListener
                 {
                     //String Id=message.get(1);
                     machineOut=(listeMachine());
-                    objectOutput.writeObject(out);
+                    objectOutput.writeObject(machineOut);
                 }
                 if (message.get(0).equals("2"))
                 {
                     String Id=message.get(1);
                     machineOut=(listeMachineUtilisateur(Id));
-                    objectOutput.writeObject(out);
+                    objectOutput.writeObject(machineOut);
                 }
                 if (message.get(0).equals("3"))
                 {
