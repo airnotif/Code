@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="3dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/notification_layout_ignored"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/image_ignored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="3dp"
+            android:src="@drawable/ic_close_black_24dp"
+            android:tint="@color/redDark" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="6dp"
+            android:layout_toEndOf="@+id/image_ignored"
+            android:text="@string/ignore"
+            android:textColor="@color/blueDark" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/notification_layout_history"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/image_hystory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="3dp"
+            android:src="@drawable/ic_check_black_24dp"
+            android:tint="@color/greenDark" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="6dp"
+            android:layout_toStartOf="@+id/image_hystory"
+            android:text="@string/accept"
+            android:textColor="@color/blueDark" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/notificaton_layout_current"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:background="@color/blue">
+
+        <TextView
+            android:id="@+id/notification_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:padding="12dp"
+            android:textColor="@color/blueLight" />
+
+        <TextView
+            android:id="@+id/info1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/notification_date"
+            android:layout_centerHorizontal="true"
+            android:padding="12dp"
+            android:text="Information 1"
+            android:textColor="@color/blueLight"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/info2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/info1"
+            android:layout_centerHorizontal="true"
+            android:padding="12dp"
+            android:text="Information 2"
+            android:textColor="@color/blueLight"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/info3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/info2"
+            android:layout_centerHorizontal="true"
+            android:padding="12dp"
+            android:text="Information 3"
+            android:textColor="@color/blueLight"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/info4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/info3"
+            android:layout_centerHorizontal="true"
+            android:padding="12dp"
+            android:text="Information 4"
+            android:textColor="@color/blueLight"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/info5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/info4"
+            android:layout_centerHorizontal="true"
+            android:padding="12dp"
+            android:text="Information 5"
+            android:textColor="@color/blueLight"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+</FrameLayout>

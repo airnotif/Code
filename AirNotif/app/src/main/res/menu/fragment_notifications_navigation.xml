@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_history"
+        android:icon="@drawable/ic_archive_black_24dp"
+        android:title="@string/history" />
+
+    <item
+        android:id="@+id/navigation_in_progress"
+        android:icon="@drawable/ic_notifications_active_black_24dp"
+        android:title="@string/in_progress" />
+
+    <item
+        android:id="@+id/navigation_ignored"
+        android:icon="@drawable/ic_pan_tool_black_24dp"
+        android:title="@string/ignored" />
+
+</menu>

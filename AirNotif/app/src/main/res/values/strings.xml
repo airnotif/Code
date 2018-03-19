@@ -1,42 +1,19 @@
 <resources>
     <string name="app_name">AirNotif</string>
-    <string name="app_logo">logo</string>
-    <string name="fond_nuages">nuages</string>
-    <string name="image_nuages">nuages</string>
-    <string name="image_avion">airnotif_avion</string>
-    <string name="title_activity_menu">MenuActivity</string>
-
-    <string name="navigation_drawer_open">Ouvrir le menu</string>
-    <string name="navigation_drawer_close">Fermer le menu</string>
-
-    <string name="action_settings">Réglages</string>
-
-    <string name="title_encours">En cours</string>
-    <string name="title_ignorees">Ignorées</string>
-    <string name="title_historique">Historique</string>
-
-    <string name="title_sabonner">S\'abonner</string>
-    <string name="title_mesabonnements">Mes abonnements</string>
-
-    <string name="title_notifications">Notifications</string>
-    <string name="title_abonnements">Abonnements</string>
-    <string name="title_reglages">Réglages</string>
-
-    <string name="langue">Langue :</string>
-    <string name="francais">Français</string>
-    <string name="anglais">Anglais</string>
-    <string-array name="liste_langues">
-        <item>@string/francais</item>
-        <item>@string/anglais</item>
-    </string-array>
-    <string-array name="code_langues">
-        <item>fr</item>
-        <item>en</item>
-    </string-array>
-
-    <string name="title_connexion">Connexion</string>
-    <string name="deconnexion">Se déconnecter</string>
-    <string name="connexion">Se Connecter</string>
-    <string name="title_activity_dialog">DialogActivity</string>
-
+    <string name="user_name">Nom d\'utilisateur</string>
+    <string name="user_password">Mot de passe</string>
+    <string name="sign_in">Se connecter</string>
+    <string name="sign_out">Se déconnecter</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="notifications">Notifications</string>
+    <string name="subscriptions">Abonnements</string>
+    <string name="in_progress">En cours</string>
+    <string name="ignored">Ignorées</string>
+    <string name="history">Historique</string>
+    <string name="subscribe">S\'abonner</string>
+    <string name="my_subscribes">Mes abonnements</string>
+    <string name="ignore">Ignorer</string>
+    <string name="accept">Accepter</string>
+    <string name="unsubscribe">Se désabonner</string>
 </resources>
