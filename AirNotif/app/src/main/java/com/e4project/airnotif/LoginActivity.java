@@ -1,17 +1,24 @@
 package com.e4project.airnotif;
 
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +30,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Locale;
+
+import static android.app.Notification.VISIBILITY_PUBLIC;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -42,14 +51,37 @@ public class LoginActivity extends AppCompatActivity {
         final ImageButton wifiConfig = findViewById(R.id.login_wifi_config);
         final ProgressBar progressBarWifi = findViewById(R.id.login_progress_bar_wifi);
 
-        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        final ImageButton notif = findViewById(R.id.login_notif);
+        notif.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        createNotification(null, null, "Nouvelle notification");
+                    }
+                }).start();
+            }
+        });
+
+        final SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         ipAddress = prefs.getString("ipAddress", "NULL");
         port = prefs.getInt("port", 0);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 if (TEST || Connection.checkIPAdress(ipAddress, port)) {
-                    wifiConfig.getDrawable().setColorFilter(getResources().getColor(R.color.greenDark), PorterDuff.Mode.SRC_ATOP);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            wifiConfig.getDrawable().setColorFilter(getResources().getColor(R.color.greenDark), PorterDuff.Mode.SRC_ATOP);
+                        }
+                    });
                 }
             }
         }).start();
@@ -80,11 +112,11 @@ public class LoginActivity extends AppCompatActivity {
                 editText3.addTextChangedListener(new CustomTextWatcher(editText3, editText4));
                 editText4.addTextChangedListener(new CustomTextWatcher(editText4, editTextPort));
                 editTextPort.addTextChangedListener(new CustomTextWatcher(editTextPort, null));
-                editText1.setFilters(new InputFilter[]{ new InputFilterMinMax("0", "255")});
-                editText2.setFilters(new InputFilter[]{ new InputFilterMinMax("0", "255")});
-                editText3.setFilters(new InputFilter[]{ new InputFilterMinMax("0", "255")});
-                editText4.setFilters(new InputFilter[]{ new InputFilterMinMax("0", "255")});
-                editTextPort.setFilters(new InputFilter[]{ new InputFilterMinMax("0", "65535")});
+                editText1.setFilters(new InputFilter[]{new InputFilterMinMax("0", "255")});
+                editText2.setFilters(new InputFilter[]{new InputFilterMinMax("0", "255")});
+                editText3.setFilters(new InputFilter[]{new InputFilterMinMax("0", "255")});
+                editText4.setFilters(new InputFilter[]{new InputFilterMinMax("0", "255")});
+                editTextPort.setFilters(new InputFilter[]{new InputFilterMinMax("0", "65535")});
                 builder.setMessage("Adresse IP et port");
                 builder.setView(dialogView);
                 builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -95,22 +127,25 @@ public class LoginActivity extends AppCompatActivity {
                         String part4 = editText4.getText().toString();
                         String partPort = editTextPort.getText().toString();
                         if (!part1.equals("") && !part2.equals("") && !part3.equals("") && !part4.equals("") && !partPort.equals("")) {
-                            wifiConfig.getDrawable().setColorFilter(getResources().getColor(R.color.redDark), PorterDuff.Mode.SRC_ATOP);
-                            progressBarWifi.setVisibility(View.VISIBLE);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    wifiConfig.getDrawable().setColorFilter(getResources().getColor(R.color.redDark), PorterDuff.Mode.SRC_ATOP);
+                                    progressBarWifi.setVisibility(View.VISIBLE);
+                                }
+                            });
                             ipAddress = part1 + "." + part2 + "." + part3 + "." + part4;
                             port = Integer.parseInt(partPort);
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    // Vérifier si l'IP est la bonne
-                                    // --- simule la recherche de l'adresse IP ---
-                                    try {
-                                        Thread.sleep(2000);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
                                     if (TEST || Connection.checkIPAdress(ipAddress, port)) {
-                                        wifiConfig.getDrawable().setColorFilter(getResources().getColor(R.color.greenDark), PorterDuff.Mode.SRC_ATOP);
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                wifiConfig.getDrawable().setColorFilter(getResources().getColor(R.color.greenDark), PorterDuff.Mode.SRC_ATOP);
+                                            }
+                                        });
                                         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
                                         SharedPreferences.Editor editor = prefs.edit();
                                         editor.putString("ipAddress", ipAddress);
@@ -126,7 +161,12 @@ public class LoginActivity extends AppCompatActivity {
                                             }
                                         });
                                     }
-                                    progressBarWifi.setVisibility(View.INVISIBLE);
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            progressBarWifi.setVisibility(View.INVISIBLE);
+                                        }
+                                    });
                                 }
                             }).start();
                         }
@@ -153,15 +193,12 @@ public class LoginActivity extends AppCompatActivity {
                         boolean userIdentityValidated = false;
                         final String userNameString = userNameEditText.getText().toString().trim();
 
-                        // Vérifier si le nom d'utilisateur et le mot de passe sont corrects
-                        // --- simule la recherche d'un utilisateur ---
-                        try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        if (TEST || Connection.checkUserAuthorization(userNameString, ipAddress, port)) {
+                        Connection.openConnection(ipAddress, port);
+
+                        if (TEST || Connection.checkUserAuthorization(userNameString)) {
                             userIdentityValidated = true;
+                        } else{
+                            Connection.closeConnection();
                         }
 
                         if (userIdentityValidated) {
@@ -268,5 +305,45 @@ public class LoginActivity extends AppCompatActivity {
             }
             return "";
         }
+    }
+
+    private void createNotification(String contentTitle, String contentText, String subText) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        String NOTIFICATION_CHANNEL_ID = "my_channel_id_01";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "My Notifications", NotificationManager.IMPORTANCE_DEFAULT);
+
+            // Configure the notification channel.
+            notificationChannel.setDescription("Channel description");
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setVibrationPattern(new long[]{0, 500, 300, 500, 300, 500, 300, 500});
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+
+        notificationBuilder.setAutoCancel(true)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.drawable.ic_airnotif_logo_48x32)
+                .setPriority(Notification.PRIORITY_MAX)
+                .setContentTitle(contentTitle)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(contentText))
+                .setContentText(contentText)
+                // Set the intent that will fire when the user taps the notification
+                .setContentIntent(pendingIntent)
+                .setSubText(subText)
+                .setVisibility(VISIBILITY_PUBLIC);
+
+        notificationManager.notify(/*notification id*/1, notificationBuilder.build());
     }
 }

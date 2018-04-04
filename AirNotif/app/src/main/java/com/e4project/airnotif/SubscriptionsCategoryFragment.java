@@ -34,8 +34,6 @@ public class SubscriptionsCategoryFragment extends Fragment implements CustomSub
     private int category;
 
     private SharedPreferences prefs;
-    private String ipAddress;
-    private int port;
 
     private String[] example = {"Alexandre", "Nicolas", "Yoann", "Camille", "Océane", "Roxanne", "Julien", "Colombe", "Mathilde", "Floriane", "Cédric", "Astrid", "Guillaume", "Antoine", "Aurélie", "Amandine", "Sébastien", "Wilfried", "William", "Siam", "Amélina"};
 
@@ -47,8 +45,8 @@ public class SubscriptionsCategoryFragment extends Fragment implements CustomSub
 
         prefs = getActivity().getSharedPreferences("prefs", Activity.MODE_PRIVATE);
 
-        ipAddress = prefs.getString("ipAddress", "NULL");
-        port = prefs.getInt("port", 0);
+        String ipAddress = prefs.getString("ipAddress", "NULL");
+        int port = prefs.getInt("port", 0);
 
         if (category == MY_SUBSCRIBES) {
             new Thread(new MySubscriptionsRunnable()).start();
@@ -102,7 +100,7 @@ public class SubscriptionsCategoryFragment extends Fragment implements CustomSub
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    boolean addSubscribeSuccess = Connection.addSubscribe(prefs.getString("userName","NULL"), subscription.getName(), ipAddress, port);
+                    boolean addSubscribeSuccess = Connection.addSubscribe(prefs.getString("userName","NULL"), subscription.getName());
                     if(addSubscribeSuccess) {
                         Snackbar.make(root, "Vous vous êtes abonné", Snackbar.LENGTH_LONG)
                                 .setAction("Annuler", new View.OnClickListener() {
@@ -111,7 +109,7 @@ public class SubscriptionsCategoryFragment extends Fragment implements CustomSub
                                         new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                boolean removeSubscribeSuccess = Connection.removeSubscribe(prefs.getString("userName","NULL"), subscription.getName(), ipAddress, port);
+                                                boolean removeSubscribeSuccess = Connection.removeSubscribe(prefs.getString("userName","NULL"), subscription.getName());
                                                 if(removeSubscribeSuccess) {
                                                     adapter.addItem(position, subscription);
                                                 }
@@ -149,7 +147,7 @@ public class SubscriptionsCategoryFragment extends Fragment implements CustomSub
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    boolean removeSubscribeSuccess = Connection.removeSubscribe(prefs.getString("userName","NULL"), subscription.getName(), ipAddress, port);
+                    boolean removeSubscribeSuccess = Connection.removeSubscribe(prefs.getString("userName","NULL"), subscription.getName());
                     if(removeSubscribeSuccess) {
                         Snackbar.make(root, "Vous vous êtes desabonné", Snackbar.LENGTH_LONG)
                                 .setAction("Annuler", new View.OnClickListener() {
@@ -158,7 +156,7 @@ public class SubscriptionsCategoryFragment extends Fragment implements CustomSub
                                         new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                boolean addSubscribeSuccess = Connection.addSubscribe(prefs.getString("userName","NULL"), subscription.getName(), ipAddress, port);
+                                                boolean addSubscribeSuccess = Connection.addSubscribe(prefs.getString("userName","NULL"), subscription.getName());
                                                 if(addSubscribeSuccess) {
                                                     adapter.addItem(position, subscription);
                                                 }
@@ -273,17 +271,22 @@ public class SubscriptionsCategoryFragment extends Fragment implements CustomSub
     class SubcribeRunnable implements Runnable {
         @Override
         public void run() {
-            ArrayList<ArrayList<String>> subs = Connection.getAllSubscriptions(prefs.getString("userName", "NULL"), ipAddress, port);
+            ArrayList<ArrayList<String>> subs = Connection.getAllSubscriptions(prefs.getString("userName", "NULL"));
             if(subs != null && subs.get(0).get(0).equals("true")) {
                 int i;
                 for (i = 1 ; i < subs.size() ; i++) {
-                    subscriptions.add(new Subscription(subs.get(i).get(0)));
+                    subscriptions.add(new Subscription(subs.get(i).get(1)));
                 }
             }
             else{
-                Toast toast = Toast.makeText(getActivity(), "Erreur lors de la récupération des abonnements", Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast toast = Toast.makeText(getActivity(), "Erreur lors de la récupération des abonnements", Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
+                    }
+                });
             }
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -297,11 +300,11 @@ public class SubscriptionsCategoryFragment extends Fragment implements CustomSub
     class MySubscriptionsRunnable implements Runnable {
         @Override
         public void run() {
-            ArrayList<ArrayList<String>> subs = Connection.getMySubscriptions(prefs.getString("userName", "NULL"), ipAddress, port);
+            ArrayList<ArrayList<String>> subs = Connection.getMySubscriptions(prefs.getString("userName", "NULL"));
             if(subs != null && subs.get(0).get(0).equals("true")) {
                 int i;
                 for (i = 1 ; i < subs.size() ; i++) {
-                    subscriptions.add(new Subscription(subs.get(i).get(0)));
+                    subscriptions.add(new Subscription(subs.get(i).get(1)));
                 }
             }
             else{
